@@ -12,7 +12,7 @@ const gelatoDistributor = process.env.GELATO_DISTRIBUTOR;
 
 // ABIs
 const TokenABI = [
-  "function totalGelBurned() view returns (uint256)",
+  "function bakanceOf(address user) view returns (uint256)",
 ];
 const DistributorABI = [
   "function totalStackedBurned() view returns (uint256)",
@@ -24,6 +24,9 @@ const DistributorABI = [
 // Initialize ethers provider and contracts
 const provider = new ethers.JsonRpcProvider(rpcUrl);
 
+const ZERO = "0x0000000000000000000000000000000000000000";
+const DEAD = "0x000000000000000000000000000000000000dEaD"
+
 const tokenContract = new ethers.Contract(gelatoToken, TokenABI, provider);
 const distributorContract = new ethers.Contract(
   gelatoDistributor,
@@ -34,9 +37,10 @@ const distributorContract = new ethers.Contract(
 // API endpoint
 app.get("/stats", async (req, res) => {
   try {
-    const [totalGelBurned, totalStackedBurned, totalSolidXBurned, totalHexDistributed, totalSolidXDistributed] =
+    const [totalGelZero, totalGelDead, totalStackedBurned, totalSolidXBurned, totalHexDistributed, totalSolidXDistributed] =
       await Promise.all([
-        tokenContract.totalGelBurned(),
+        tokenContract.balanceOf(ZERO),
+        tokenContract.balanceOf(DEAD),
         distributorContract.totalStackedBurned(),
         distributorContract.totalSolidXBurned(),
         distributorContract.totalHexDistributed(),
@@ -44,7 +48,7 @@ app.get("/stats", async (req, res) => {
       ]);
 
     res.json({
-      totalGelBurned: totalGelBurned.toString() / 1e18,
+      totalGelBurned: (totalGelZero + totalGelDead) / 1e18,
       totalStackedBurned: totalStackedBurned.toString() / 1e18,
       totalSolidXBurned: totalSolidXBurned.toString() / 1e18,
       totalHexDistributed: totalHexDistributed.toString() / 1e8,
