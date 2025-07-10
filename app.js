@@ -12,7 +12,7 @@ const gelatoDistributor = process.env.GELATO_DISTRIBUTOR;
 
 // ABIs
 const TokenABI = [
-  "function bakanceOf(address user) view returns (uint256)",
+  "function balanceOf(address user) view returns (uint256)",
 ];
 const DistributorABI = [
   "function totalStackedBurned() view returns (uint256)",
@@ -48,11 +48,11 @@ app.get("/stats", async (req, res) => {
       ]);
 
     res.json({
-      totalGelBurned: (totalGelZero + totalGelDead) / 1e18,
-      totalStackedBurned: totalStackedBurned.toString() / 1e18,
-      totalSolidXBurned: totalSolidXBurned.toString() / 1e18,
-      totalHexDistributed: totalHexDistributed.toString() / 1e8,
-      totalSolidXDistributed: totalSolidXDistributed.toString() / 1e18,
+      totalGelBurned: (Number(totalGelZero) + Number(totalGelDead)) / 1e18,
+      totalStackedBurned: Number(totalStackedBurned) / 1e18,
+      totalSolidXBurned: Number(totalSolidXBurned) / 1e18,
+      totalHexDistributed: Number(totalHexDistributed) / 1e8,
+      totalSolidXDistributed: Number(totalSolidXDistributed) / 1e18,
     });
   } catch (error) {
     console.error("Error fetching data from contracts:", error);
